@@ -1,7 +1,7 @@
-
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
-</html>
+Im good at html - Mally 
+<br>
+Im good at javascript - Exofiex6
+<br>
+Me tring new things
+<br>
+Call me on discord
