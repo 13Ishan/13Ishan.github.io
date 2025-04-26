@@ -1,0 +1,977 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Afterlife - Games</title>
+      <link rel="icon" type="image/x-icon" href="IMGS/Orion.png">
+      
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+      <script>function toggleMusicList() {
+        var musicList = document.getElementById("music-list");
+        if (musicList.style.display === "none") {
+            musicList.style.display = "block";
+        } else {
+            musicList.style.display = "none";
+        }
+    }
+  
+    function playSong(song) {
+        var audio = document.getElementById("background-music");
+        var source = document.getElementById("audio-source");
+        source.src = song;
+        audio.load();
+        audio.play();
+    }</script>
+      <style>
+    html{
+      scrollbar-width: none;
+    }
+    ::-webkit-scrollbar {
+      display: none;
+  }
+          * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+          }
+          body {
+              
+              font-family: Franklin Gothic Medium, Arial Narrow, sans-serif;
+              overflow-y: scroll; /* Allows vertical scrolling */
+      overflow-x: hidden; /* Prevents horizontal scrolling */
+              color: white;
+              background-color: black;
+              text-align: center;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+          }
+          .LOL img {
+      max-width: 100%;
+      width: 150px;
+      height: 150px;
+      margin: 10px auto;
+      filter: brightness(1);
+      border-radius: 10px;
+      transition: filter 0.3s, box-shadow 0.3s;
+  }
+
+  .LOL:hover img {
+      filter: brightness(1.2);
+      box-shadow: 0 0 10px 6px gray;
+  }
+          .container {
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+          }
+          
+          footer {
+              text-align: center;
+              padding: 20px;
+              background-color: black;
+              position: fixed;
+              bottom: 0;
+              width: 100%;
+          }
+        
+          .header {
+              display: flex;
+              align-items: center; /* Align logo and text horizontally */
+              justify-content: center; /* Center the content (logo + title) */
+              padding: 10px 0; /* Thinner black background */
+              width: 100%;
+              background-color: #131418;
+              color: white;
+          }
+          .content {
+              position: relative;
+              color: white;
+              text-align: center;
+              padding: 20px;
+              font-family: Arial, sans-serif;
+          }
+          .header img {
+              width: 80px;
+              height: auto;
+              margin-right: 15px;
+              /* Adds space between the logo and text */
+          }
+          .header h1 {
+              font-size: 3rem;
+          }
+        
+          .nav-bar {
+              display: flex;
+              justify-content: center; /* Center the nav icons */
+              gap: 30px; /* Space between icons */
+              width: 100%;
+              background-color: #131418;
+              padding: 10px 0;
+          }
+          #game-container {
+      display: none;
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+  }
+
+
+          iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+  }
+
+          .nav-bar a {
+              text-align: center;
+              color:  white;
+              font-size: 2rem; /* Increase icon size */
+              transition: 0.3s; /* Smooth transition for hover effects */
+              display: flex;
+              flex-direction: column; /* Arrange icon and text vertically */
+              align-items: center; /* Center the text under the icon */
+              text-decoration: none; /* Remove underline */
+          }
+          .nav-bar a:hover {
+              color: #784706; /* Change icon color to gray on hover */
+              transform: scale(1.2); /* Slightly enlarge the icon */
+          
+          }
+          .nav-bar span {
+              margin-top: 5px; /* Space between icon and text */
+              font-size: 1rem; /* Smaller font size for the text */
+          }
+          .music-buttons-container button {
+              padding: 10px 15px;
+              font-size: 16px;
+              background-color: #333;
+              color: white;
+              border: 1px solid #555;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+
+          .music-buttons-container button:hover {
+              background-color: #555;
+          }
+          .back-arrow {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: #007BFF;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+      z-index: 1;
+  }
+
+  .back-arrow:hover {
+      background-color: #f0f0f0;
+      color: #0056b3;
+  }
+  canvas {
+    position: fixed; 
+    z-index: -999;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; 
+  }
+  /* Loading screen styles */
+#loading-screen {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+/* Spinner animation */
+.spinner {
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    border-top: 6px solid #fff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+      </style>
+  </head>
+  <body>
+      <a href="../Oneture.html" class="back-arrow">
+        ← Back
+    </a>
+
+      </ul>
+
+
+      <div class="container">
+          <div class="header">
+              <img src="IMGS/Orion.png" alt="Afterlife Logo">
+              <h1 onclick="openGame()">Afterlife Gaming </h1>
+          </div>
+        
+          <div class="nav-bar">
+              <a href="Home.html"><i class="fas fa-home"></i><span>Home</span></a>
+              <a href="Games.html"><i class="fas fa-gamepad"></i><span>Games</span></a>
+              <a href="chat.html?prev=Games.html"><i class="fas fa-comments"></i><span>Chat</span></a>
+              <a href="Forms.html"><i class="fa-solid fa-pen-to-square"></i><span>Forms</span></a>
+              <div class="music-buttons-container">
+                <button onclick="document.getElementById('background-music').play()">Play Music</button>
+                <button onclick="document.getElementById('background-music').pause()">Pause Music</button>
+            </div>
+          </div>
+      </div>
+      <audio id="background-music">
+        <source id="audio-source" src="CS.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Example Website Content -->
+    <div class="content">
+      
+    </div>
+  </body>
+
+<script src="https://kit.fontawesome.com/d063d200ea.js" crossorigin="anonymous"></script>
+        <script>
+          function openGame() {
+      var win = window.open();
+      var url = "Home.html";
+      win.document.write('<html><head><link rel="icon" id="favicon" href="https://flyclipart.com/thumbs/launchpad-classlink-1278294.png"><title>Login</title><style>body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }</style></head><body></body></html>');
+      var iframe = win.document.createElement('iframe');
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+      iframe.src = url;
+      win.document.body.appendChild(iframe);
+  }
+
+  window.onload = openGame;
+
+  const canvas = document.getElementById("particleCanvas");
+          const ctx = canvas.getContext("2d");
+
+          function resizeCanvas() {
+              canvas.width = window.innerWidth;
+              canvas.height = window.innerHeight;
+          }
+
+          resizeCanvas(); // Initial resize
+          window.addEventListener("resize", resizeCanvas);
+
+          // Particle class
+          class Particle {
+              constructor() {
+                  this.radius = Math.random() * 6 + 4; // Larger size
+                  this.x = Math.random() * canvas.width;
+                  this.y = canvas.height + this.radius; // Start from bottom
+                  this.speedY = Math.random() * 4 + 2; // Faster speed up
+                  this.opacity = Math.random() * 0.5 + 0.5; // More visible
+              }
+
+              update() {
+                  this.y -= this.speedY; // Move up
+                  if (this.y < -this.radius) {
+                      this.y = canvas.height + this.radius; // Reset to bottom
+                      this.x = Math.random() * canvas.width; // Random X position
+                  }
+              }
+
+              draw() {
+                  ctx.beginPath();
+                  ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+
+                  // Glow effect
+                  ctx.shadowBlur = 20;
+                  ctx.shadowColor = "rgba(120, 71, 0, 1)"; // Bright blue glow
+                  
+                  ctx.fillStyle = `rgba(120, 71, 0, ${this.opacity})`; // Dark blue color
+                  ctx.fill();
+                  ctx.closePath();
+              }
+          }
+
+          let particles = [];
+
+          function init() {
+              particles = [];
+              for (let i = 100; i--; ) {
+                  particles.push(new Particle());
+              }
+          }
+
+          function animate() {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              
+              particles.forEach(particle => {
+                  particle.update();
+                  particle.draw();
+              });
+
+              requestAnimationFrame(animate);
+          }
+
+          // Start animation
+          init();
+          animate();
+      </script>
+    <h1 style="position: absolute;top: 17%;left: 20%;transform: translateY(-50%);margin: 0;font-size: 2vw;font-family: Arial, sans-serif;text-align: left;" id="countDisplay";><strong></strong></h1>
+    
+          
+    
+    <body onload="countLOLDivs()">
+      <input type="text" id="searchBar"   placeholder="Search for a game..."
+  style="width: 800px; padding: 10px; margin: 10px auto; display: block; font-size: 16px;
+  background-color: #333; color: white; border: 1px solid #555; border-radius: 5px;
+  position: absolute; top: 27%; left: 18%;">   
+    </body>
+          <!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+  <div class="game-container">
+      
+      <div class="LOL" data-name="Ryan's Sussy Gaming">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/')">
+    <img src="IMGS/RSG.png" width="150px" alt="Ryan's Sus Gaming">
+  </a>
+        </div>
+
+     <div class="LOL" data-name="Doge Unblocker">
+  <a href="#" onclick="('https://classwork.wikilegia.com')">
+    <img src="IMGS/DogeUnblocker.png" width="150px" alt="Doge Unblocker">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="Minecraft">
+  <a href="#" onclick="openpage('https://d1tm91r4ytbt54.cloudfront.net/2779cbcb-a02f-48a3-9e2e-95a8d123d165/1685483461665/web/index.html')">
+    <img src="IMGS/EC.png" width="150px" alt="Minecraft">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Acorn13">
+  <a href="#" onclick="openpage('https://acorn13.github.io)">
+    <img src="IMGS/Acorn13.png" width="150px" alt="Acorn13">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Gams">
+  <a href="#" onclick="openpage('https://spotify-playlist11.github.io/4o5231o4u1o/Gams.html')">
+    <img src="IMGS/GamsB.png" width="150px" alt="Gams">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Yexex2">
+  <a href="#" onclick="openpage('https://purgehash.github.io/purgty/games.html')">
+    <img src="IMGS/Yexex2.png" width="150px" alt="Yexex2">
+  </a>
+</div>
+
+     <div class="LOL" data-name="MonkeyGG2">
+  <a href="#" onclick="openpage('https://Jake1283645473.github.io/AbyanIsBetter')">
+    <img src="IMGS/MK.png" width="150px" alt="MonkeyGG2">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Hub-Pro">
+  <a href="#" onclick="openpage('https://hub-pro.github.io')">
+    <img src="IMGS/Hub-Pro.png" width="150px" alt="Hub-Pro">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Glacier Arcade">
+  <a href="#" onclick="openpage('https://classwork.jwork.ru/')">
+    <img src="IMGS/GA.png" width="150px" alt="Glacier Arcade">
+  </a>
+</div>
+
+  
+
+     <div class="LOL" data-name="MexiMath">
+  <a href="#" onclick="openpage('https://codinggithub.global.ssl.fastly.net/')">
+    <img src="IMGS/Mexi.png" width="150px" alt="MexiMath">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Slope 3d">
+  <a href="#" onclick="openpage('https://slope3d.github.io')">
+    <img src="IMGS/Slope3d.png" width="150px" alt="Slope 3d">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Ghost">
+  <a href="#" onclick="openpage('https://mathiscool.global.ssl.fastly.net')">
+    <img src="IMGS/Ghost.png" width="150px" alt="Ghost">
+  </a>
+</div>
+
+     
+
+     <div class="LOL" data-name="Forms">
+  <a href="#" onclick="openpage('https://forms.office.com/r/ma19Q4Dtmp?origin=lprLink')">
+    <img src="IMGS/Forms.png" width="150px" alt="Forms">
+  </a>
+</div>
+
+     <div class="LOL" data-name="Freezenova">
+  <a href="#" onclick="openpage('https://polight1.github.io/Hisobfguosegh-dfogbods-g-jewrot-l-erbfapgf-ypp3w9q0e-qw0--dywrwigerh8-r-aspiv-sg-d-gs0fyseoysgjesusf/')">
+    <img src="IMGS/FN.png" width="150px" alt="Freezenova">
+  </a>
+</div>
+
+     
+     
+     <div class="LOL" data-name="Mario">
+  <a href="#" onclick="openpage('https://fulscreenmario.github.io/')">
+    <img src="IMGS/SM2.png" width="150px" alt="Mario">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="Subway surfers">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/subway-surfers/')">
+    <img src="IMGS/Subway.png" width="150px" alt="Subway Surfers">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="KrishyDaFishy">
+  <a href="#" onclick="openpage('https://bio.link/booleanbob')">
+    <img src="IMGS/KTF.png" width="150px" alt="KrishyDaFishy">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="DuckHTML">
+  <a href="#" onclick="openpage('https://stopbullying.reason.org.nz/')">
+    <img src="IMGS/DuckHTML.png" width="150px" alt="DuckHTML">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="Utopia">
+  <a href="#" onclick="openpage('https://data.base.sovnarkom.org/')">
+    <img src="IMGS/Utopia.PNG" width="150px" alt="Utopia">
+  </a>
+</div>
+     
+     <div class="LOL" data-name="Super Mario 64">
+  <a href="#" onclick="openpage('https://7s-4a2.pages.dev/g/supermario64')">
+    <img src="IMGS/SM64.png" width="150px" alt="Super Mario 64">
+  </a>
+</div>
+
+<div class="LOL" data-name="Nitrotype">
+  <a href="https://www.Nitrotype.com" target="_blank">
+    <img src="IMGS/NT.png" width="150px" alt="Nitrotype">
+  </a>
+</div>
+<div class="LOL" data-name="Snow Rider 3d">
+  <a href="#" onclick="openpage('https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/sk1bx/89574567@71f165531792ae450fe0a522a52ba4e827344de2/sr3d.xml&container=ig')">
+    <img src="IMGS/SR3D.png" width="150px" alt="Snow Rider 3d">
+  </a>
+</div>
+
+<div class="LOL" data-name="Shadow">
+  <a href="#" onclick="openpage('https://freeflowshadow.df.1.wikilegia.com/')">
+    <img src="IMGS/SP.PNG" width="150px" height="150px" alt="Shadow">
+  </a>
+</div>
+<div class="LOL" data-name="Ironsnout">
+  <a href="#" onclick="openpage('https://betterbull.com/uploads/5/5/6/7/5567194/custom_themes/811766381464516446/files/index.html')">
+    <img src="IMGS/IS.png" width="150px" alt="Ironsnout">
+  </a>
+</div>
+<div class="LOL" data-name="Unblocked Cave">
+  <a href="#" onclick="openpage('https://wetlandgamesjack.github.io/games/games.html')">
+    <img src="IMGS/UC.PNG" width="150px" height="150px" alt="Unblocked Cave">
+  </a>
+</div>
+<div class="LOL" data-name="Idle Breakout">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/idle-breakout/')">
+    <img src="IMGS/Idle.png" width="150px" height="150px" alt="Idle Breakout">
+  </div>
+        <div class="LOL"  data-name="Drift Boss">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/drift-boss/')">
+    <img src="IMGS/Boss.png" width="150px" alt="Drift Boss">
+  </a>
+</div>
+
+<div class="LOL" data-name="Slope">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/slope/')">
+    <img src="IMGS/Slope.png" width="150px" alt="Slope">
+  </a>
+</div>
+<div class="LOL"  data-name="Szvy Central">
+  <a href="#" onclick="openpage('https://mathiscool.wikilegia.com')">
+    <img src="IMGS/Szvy.png" width="150px" alt="Szvy Central">
+  </a>
+</div>
+<div class="LOL" data-name="Retrobowl">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/retro-bowl/')">
+    <img src="IMGS/RB.PNG" width="150px" alt="Retrobowl">
+  </a>
+</div>
+<div class="LOL" data-name="Space Huggers">
+  <a href="#" onclick="openpage('https://openprocessing.org/sketch/2093028/embed/')">
+    <img src="IMGS/SH.png" width="150px" alt="Space Huggers">
+  </a>
+</div>
+<div class="LOL" data-name="Basketball Random">
+  <a href="#" onclick="openpage('https://basket-random-game.github.io/file/')">
+    <img src="IMGS/BR.png" width="150px" alt="Basketball Random">
+  </a>
+</div>
+<div class="LOL" data-name="Burger Bounty">
+  <a href="#" onclick="openpage('https://Burger-Bounty.github.io')">
+    <img src="IMGS/BB.png" width="150px" alt="Bruger Bounty">
+  </a>
+</div>
+<div class="LOL" data-name="NintendoBoi">
+  <a href="#" onclick="openpage('https://skibidiman23132.github.io/')">
+    <img src="IMGS/Nint.png" width="150px" alt="Nintendoboi">
+  </a>
+</div>
+<div class="LOL" data-name="Blooket.pages.dev">
+  <a href="#" onclick="openpage('https://polight1.github.io')">
+    <img src="IMGS/Blook.png" width="150px" alt="Blooket.pages.dev">
+  </a>
+</div>
+<div class="LOL" data-name="Bolt">
+  <a href="#" onclick="openpage('https://jollyconnormadethis.global.ssl.fastly.net/')">
+    <img src="IMGS/Bolt.png" width="150px" alt="Bolt">
+  </a>
+</div>
+<div class="LOL" data-name="Geometry Dash">
+  <a href="#" onclick="openpage('Games/geodash.html')">
+    <img src="IMGS/GD.png" width="150px" alt="Geometry Dash">
+  </a>
+</div>
+<div class="LOL" data-name="Block Blast">
+  <a href="#" onclick="openpage('https://why12389.github.io/block.io/')">
+    <img src="IMGS/Blok.png" width="150px" alt="Block Blast">
+  </a>
+</div>
+<div class="LOL" data-name="Burrito Bison">
+  <a href="#" onclick="openpage('https://polight1.github.io/iueouryw3i-urghfdruogfo4wqy9-4-FEW5-GYHT6IY23-UYWHYQE8URBNU3egf97nr-5p-/file/index.html')">
+    <img src="IMGS/BB2.png" width="150px" alt="Burrito Bison">
+  </a>
+</div>
+<div class="LOL" data-name="Sunset Proxy">
+  <a href="#" onclick="openpage('https://tutoringiscool.masplene.com')">
+    <img src="IMGS/SSP2.png" width="150px" alt="Sunset Proxy">
+  </a>
+</div>
+<div class="LOL" data-name="Flappy Bird">
+  <a href="#" onclick="openpage('https://calcmathprojects.github.io/calcmathpro.github.io/')">
+    <img src="IMGS/FB2.png" width="150px" alt="Flappy Bird">
+  </a>
+</div>
+
+        <div class="LOL" data-name="Appel">
+  <a href="#" onclick="openpage('Games/appel.html')">
+    <img src="IMGS/Appel.png" width="150px" alt="Appel">
+  </a>
+</div>
+           <div class="LOL" data-name="Absurd Appel">
+  <a href="#" onclick="openpage('Games/absurdappel.html')">
+    <img src="IMGS/AbsurdApple.png" width="150px" alt="Absurd Appel">
+  </a>
+</div>
+           <div class="LOL"  data-name="Agar.io lite">
+  <a href="#" onclick="openpage('Games/Agar.io.html')">
+    <img src="IMGS/Agar.io.png" width="150px" alt="Agar.io lite">
+  </a>
+</div>
+        <div class="LOL" data-name="Slither.io">
+  <a href="#" onclick="openpage('https://artclasshomework.github.io/-ewourgw9utg9e7/')">
+    <img src="IMGS/Slither.png" width="150px" alt="Slither.io">
+  </a>
+</div>
+                <div class="LOL" data-name="Slots">
+  <a href="#" onclick="openpage('https://artclasshomework.github.io/Watercolor/Slots.html')">
+    <img src="IMGS/Slots.png" width="150px" alt="Slots">
+  </a>
+</div>
+        <div class="LOL" data-name="Bacon May Die">
+  <a href="#" onclick="openpage('https://www.betterbull.com/uploads/5/5/6/7/5567194/custom_themes/320690105873469650/files/index.html')">
+    <img src="IMGS/BMD2.png" width="150px" alt="Bacon May Die">
+  </a>
+</div>
+              
+        <div class="LOL" data-name="Slope2">
+  <a href="#" onclick="openpage('https://studyisimportant.github.io/slope2/')">
+    <img src="IMGS/Slope2.png" width="150px" alt="Slope 2 ">
+  </a>
+</div>
+        <div class="LOL" data-name="Friday Night Funkin'">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/friday-night-funkin/')">
+    <img src="IMGS/FNF.png" width="150px" alt="Friday Night Funkin'">
+  </a>
+</div>
+        <div class="LOL" data-name="Ball Blast">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/w-rt2hoeyh2uoe1ygh9w/Ball%20Blast%20-%20Mobile%20friendly.html')">
+    <img src="IMGS/BallBlast.png" width="150px" alt="Ball Blast">
+  </a>
+</div>
+        <div class="LOL" data-name="Google Island Games">
+  <a href="#" onclick="openpage('https://gameblabla.github.io/doodle-champion-island-games-Google/')">
+    <img src="IMGS/GoogleIsland.png" width="150px" alt="Google Island Games">
+  </a>
+</div>
+        <div class="LOL" data-name="Paper.io">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/paperio2/')">
+    <img src="IMGS/Paperio.png" width="150px" alt="Paper.io">
+  </a>
+</div>
+        <div class="LOL" data-name="Monkey Mart">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/monkey-mart')">
+    <img src="IMGS/Monkey.png" width="150px" alt="Monkey Mart">
+  </a>
+</div>
+        <div class="LOL" data-name="Poly Track">
+  <a href="#" onclick="openpage('https://astroid5710.github.io/polytrack-clone/')">
+    <img src="IMGS/Poly.png" width="150px" alt="Poly Track">
+  </a>
+</div>
+         <div class="LOL" data-name="Hole.io">
+  <a href="#" onclick="openpage('https://google-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/gertdoro/Toolkit@93a27eabbbe5eb626af5b9b7dd0926ac16810a41/Code/Java/hole.xml&container=ig')">
+    <img src="IMGS/Holeio.png" width="150px" alt="Hole.io">
+  </a>
+</div>
+        <div class="LOL" data-name="Paperclip clicker">
+  <a href="#" onclick="openpage('https://www.decisionproblem.com/paperclips/index2.html')">
+    <img src="IMGS/PaperClip.png" width="150px" alt="Paperclip Clicker">
+  </a>
+</div>
+        <div class="LOL" data-name="Yohoho.io">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/yohoho/index.html')">
+    <img src="IMGS/Yohoho.png" width="150px" alt="Yohoho.io">
+  </a>
+</div>
+        <div class="LOL" data-name="Cookie Clicker">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/cookie-clicker/index.html')">
+    <img src="IMGS/Cookie.png" width="150px" alt="Cookie Clicker">
+  </a>
+</div>
+        <div class="LOL" data-name="Chrome Dino">
+  <a href="#" onclick="openpage('https://vortexfusion.github.io/nebula/chrome-dino/index.html')">
+    <img src="IMGS/Dino.png" width="150px" alt="Chrome Dino">
+  </a>
+</div>
+        <div class="LOL" data-name="Snowball.io">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/snowbattle/')">
+    <img src="IMGS/Snowballio.png" width="150px" alt="Snowball.io">
+  </a>
+</div>
+        
+        <div class="LOL" data-name="Space">
+  <a href="#" onclick="openpage('https://link2.chopez.com.ar')">
+    <img src="IMGS/Space.png" width="150px" alt="Space">
+  </a>
+</div>
+        <div class="LOL" data-name="N-gon">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/n-gon/index.html')">
+    <img src="IMGS/N-gon.png" width="150px" alt="N-gon">
+  </a>
+</div>
+        <div class="LOL" data-name="Learn To Fly">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=learn-to-fly')">
+    <img src="IMGS/LTF.png" width="150px" alt="Learn to fly">
+  </a>
+</div>
+        <div class="LOL" data-name="Learn To Fly 2">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=learn-to-fly-2')">
+    <img src="IMGS/LTF2.png" width="150px" alt="Learn to fly 2 ">
+  </a>
+</div>
+        <div class="LOL" data-name="Learn To Fly 3">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=learn-to-fly-3')">
+    <img src="IMGS/LTF3.png" width="150px" alt="Learn to fly 3 ">
+  </a>
+</div>
+        <div class="LOL" data-name="Badtime Simulator">
+  <a href="#" onclick="openpage('https://hotamago.github.io/sans/')">
+    <img src="IMGS/BadTime.png" width="150px" alt="Badtime Simulator">
+  </a>
+</div>
+        <div class="LOL" data-name="Basketball Stars">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/basketball-stars/)">
+    <img src="IMGS/B-Star.png" width="150px" alt="Basketball Stars">
+  </a>
+</div>
+        
+        <div class="LOL" data-name="Vex 3">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/vex-3/index.html')">
+    <img src="IMGS/V3.png" width="150px" alt="Vex 3">
+  </a>
+</div>
+        <div class="LOL"  data-name="Vex 4">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/vex-4/index.html')">
+    <img src="IMGS/V4.png" width="150px" alt="Vex 4">
+  </a>
+</div>
+        <div class="LOL" data-name="Vex 5">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/vex-5/index.html')">
+    <img src="IMGS/V5.png" width="150px" alt="Vex 5">
+  </a>
+</div>
+        <div class="LOL" data-name="Vex 6">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/vex-6/index.html')">
+    <img src="IMGS/V6.png" width="150px" alt="Vex 6">
+  </a>
+</div>
+        <div class="LOL" data-name="Vex 7">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/vex-7/index.html')">
+    <img src="IMGS/V7.png" width="150px" alt="Vex 7">
+  </a>
+</div>
+        <div class="LOL" data-name="Bitlife">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/bit-life/')">
+    <img src="IMGS/Bitlife.png" width="150px" alt="Bitlife">
+  </a>
+</div>
+              <div class="LOL" data-name="Duck Life">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=duck-life')">
+    <img src="IMGS/Duck.png" width="150px" alt="Duck Life">
+  </a>
+</div>
+              <div class="LOL" data-name="Duck Life 2">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=duck-life-2')">
+    <img src="IMGS/Duck2.png" width="150px" alt="Duck Life 2">
+  </a>
+</div>
+              <div class="LOL" data-name="Duck Life 3">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=duck-life-3')">
+    <img src="IMGS/Duck3.png" width="150px" alt="Duck Life 3">
+  </a>
+</div>
+              <div class="LOL" data-name="Duck Life 4">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=duck-life-4')">
+    <img src="IMGS/Duck4.png" width="150px" alt="Duck Life 4">
+  </a>
+</div>
+              <div class="LOL" data-name="Duck Life 5">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/flash/?game=duck-life-5')">
+    <img src="IMGS/Duck5.png" width="150px" alt="Duck life 5">
+  </a>
+</div>
+              <div class="LOL" data-name="Time Shooter">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/time-shooter/')">
+    <img src="IMGS/Time.png" width="150px" alt="Time Shooter">
+  </a>
+</div>
+              <div class="LOL" data-name="Time Shooter 3">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/time-shooter-3/')">
+    <img src="IMGS/Time3.png" width="150px" alt="Time Shooter 3">
+  </a>
+</div>
+              <div class="LOL" data-name="World's Hardest Game">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/worlds-hardest-game/index.html')">
+    <img src="IMGS/WHG.png" width="150px" alt="World's Hardest Game">
+  </a>
+</div>
+              <div class="LOL" data-name="Tiny Fishing">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/tiny-fishing/')">
+    <img src="IMGS/Fishing.png" width="150px" alt="Tiny Fishing">
+  </a>
+</div>
+     <div class="LOL" data-name="Stickman Hook">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/stickman-hook/')">
+    <img src="IMGS/SMhook.png" width="150px" alt="Stickman Hook">
+  </a>
+</div>
+     <div class="LOL" data-name="MotoX3M">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/motox3m/index.html')">
+    <img src="IMGS/Moto.png" width="150px" alt="MotoX3M">
+  </a>
+</div>
+      <div class="LOL" data-name="Tetris">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/tetris/')">
+    <img src="IMGS/Tetris.png" width="150px" alt="Tetris">
+  </a>
+</div>
+           <div class="LOL" data-name="Tanuki Sunset">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/tanuki-sunset/')">
+    <img src="IMGS/Tanuki.png" width="150px" alt="Tanuki Sunset">
+  </a>
+</div>
+     <div class="LOL" data-name="Clicker Heroes">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/clicker-heroes/')">
+    <img src="IMGS/ClickerH.png" width="150px" alt="Clicker Heroes">
+  </a>
+</div>
+      <div class="LOL" data-name="Backrooms">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/backrooms/')">
+    <img src="IMGS/Back.png" width="150px" alt="Backrooms">
+  </a>
+</div>
+           <div class="LOL" data-name="Cut The Rope">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/cut-the-rope/')">
+    <img src="IMGS/CTR.png" width="150px" alt="Cut The Rope">
+  </a>
+</div>
+     <div class="LOL" data-name="Level Devil">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/index.html')">
+    <img src="IMGS/Devil.png" width="150px" alt="Level Devil">
+  </a>
+</div>
+
+      <div class="LOL" data-name="Super Smash Flash">
+  <a href="#" onclick="openpage('https://class-smp.github.io/testgms43923872198ysf993we9jernh8h989hh9f399h8f3e9wha-site.github.io/flash/super-smash-flash/index.html')">
+    <img src="IMGS/SuperSF.png" width="150px" alt="Super Smash Flash">
+  </a>
+</div>
+       <div class="LOL" data-name="Appel Multiplayer">
+  <a href="#" onclick="openpage('Games/applemulti.html')">
+    <img src="IMGS/MPA.png" width="150px" alt="Appel Multiplayer">
+  </a>
+</div>
+           <div class="LOL" data-name="Gun Mayhem">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/gun-mayhem/')">
+    <img src="IMGS/GMYM.png" width="150px" alt="Gun Mayhem">
+  </a>
+</div>
+       <div class="LOL" data-name="Gun Mayhem 2">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/gun-mayhem-2/')">
+    <img src="IMGS/GMYM2.png" width="150px" alt="Gun Mayhem 2">
+  </a>
+</div>
+          <div class="LOL" data-name="Temple Run 2">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/temple-run-2/')">
+    <img src="IMGS/TR2.png" width="150px" alt="Temple Run 2">
+  </a>
+</div>
+     <div class="LOL" data-name="Coreball">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/core-ball/')">
+    <img src="IMGS/Core.png" width="150px" alt="Coreball">
+  </a>
+</div>
+    
+      <div class="LOL" data-name="Soccer Random">
+  <a href="#" onclick="openpage('https://wetlandgamesjack.github.io/games/games/SoccerRandom/index.html')">
+    <img src="IMGS/SR.png" width="150px" alt="Soccer Random">
+  </a>
+</div>
+      <div class="LOL" data-name="Gunspin">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/4j-594gh12-8g25834hy523g4uo2tieurghewui4ge1o2iugh419rhu18/games/gunspin/')">
+    <img src="IMGS/Gunspin.png" width="150px" alt="Gunspin">
+  </a>
+</div>
+      <div class="LOL" data-name="Hacker Typer">
+  <a href="#" onclick="openpage('https://wetlandgamesjack.github.io/games/games/HackerTyper/index.html')">
+    <img src="IMGS/Hackertyper.png" width="150px" alt="Hacker Typer">
+  </a>
+</div>
+      <div class="LOL" data-name="Game Inside A Game">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/game-inside/')">
+    <img src="IMGS/GIAG.png" width="150px" alt="Game Inside A Game">
+  </a>
+</div>
+        <div class="LOL" data-name="Edge Not Found">
+  <a href="#" onclick="openpage('https://kasperisalittlebitch.github.io/edgenotfound/')">
+    <img src="IMGS/ENF.png" width="150px" alt="Edge not Found">
+  </a>
+</div>
+     <div class="LOL" data-name="Tomb Of The Mask">
+  <a href="#" onclick="openpage('https://tomb-of-the-mask-online.github.io/file/')">
+    <img src="IMGS/Tomb.png" width="150px" alt="Tomb Of The Mask">
+  </a>
+</div>
+       <div class="LOL" data-name="Getting Over It">
+  <a href="#" onclick="openpage('https://triangulardev.github.io/Getting-Over-It/')">
+    <img src="IMGS/GOI.png" width="150px" alt="Getting Over It">
+  </a>
+</div>
+        
+          
+          
+  <div class="game-container">   
+            </div>
+          </div>
+          <div id="game-container">
+            <iframe id="game-frame" src=""></iframe>
+        </div>
+
+      
+  <script src="Script.js"></script>
+          <script>
+      document.addEventListener("DOMContentLoaded", function () {
+      const searchBar = document.getElementById("searchBar");
+      const searchBarOriginalTop = searchBar.offsetTop; // Get the original top position
+      const searchBarOriginalLeft = searchBar.offsetLeft; // Get the original left position
+
+      window.addEventListener("scroll", function () {
+          if (window.scrollY >= searchBarOriginalTop) {
+              searchBar.classList.add("sticky");
+              searchBar.style.left = `${searchBarOriginalLeft}px`; // Lock left position
+          } else {
+              searchBar.classList.remove("sticky");
+              searchBar.style.left = ""; // Reset left position when scrolling back up
+          }
+      });
+  });
+  document.addEventListener("DOMContentLoaded", () => {
+          const gameContainer = document.getElementById("game-container");
+          const gameFrame = document.getElementById("game-frame");
+          const backArrow = document.querySelector(".back-arrow");
+          backArrow.style.display = "none";
+
+          window.openpage = function(gameUrl) {
+              gameFrame.src = gameUrl;
+              gameContainer.style.display = "flex";
+              backArrow.style.display = "block";
+              window.scrollTo({ top: gameContainer.offsetTop, behavior: "smooth" });
+              var hidesearchbar = true;
+              searchBar.style.display = "none";
+          };
+
+          backArrow.addEventListener("click", (event) => {
+              event.preventDefault();
+              gameContainer.style.display = "none";
+              backArrow.style.display = "none";
+              gameFrame.src = "";
+              var hidesearchbar = false;
+              searchBar.style.display = "block"; // Makes it visible
+          });
+      });
+  </script>
+
+        </body>
+        </head>
+      </div>
+  </body> </html>
+
+
+
+  </html>
