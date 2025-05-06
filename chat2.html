@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Afterlife | Chat Room</title>
+  <link rel="icon" href="IMGS/Orion.png" />
+  <script src="https://kit.fontawesome.com/d063d200ea.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzWoS83AlV4T00_GOiBWouVAmo0wvquCU",
+      authDomain: "afterlifesocial-60987.firebaseapp.com",
+      databaseURL: "https://afterlifesocial-60987-default-rtdb.firebaseio.com",
+      projectId: "afterlifesocial-60987",
+      storageBucket: "afterlifesocial-60987.firebasestorage.app",
+      messagingSenderId: "467547693984",
+      appId: "1:467547693984:web:7d6ab8547b35c97542fac5",
+      measurementId: "G-Y6M0DEP9BM"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db        = firebase.database();
+    const globalRef = db.ref('chat/messages');
+
+    let activeRef       = globalRef;
+    let activeRoomType  = 'global';
+    let activeCode      = null;
+    let currentUsername = '';
+    let isAdmin = false;
+    let isBanned = false;
+
+    const ADMIN_EMAILS = [
+    // Developers
+  '1078524@lwsd.org',
+  '1087845@lwsd.org',
+  '1081221@lwsd.org',
+  // Admins
+  '1071631@lwsd.org',
+  '1098964@lwsd.org'
+];
+  </script>
+
+  <style>
+    .nav-bar a { position: relative; }
+    .nav-bar a::after {
+      content: ""; position: absolute; left:0; bottom:-2px;
+      width:100%; height:2px;
+      background-color:rgba(168,85,247,0.6);
+      transform:scaleX(0); transform-origin:left;
+      transition:transform 0.3s ease;
+    }
+    .nav-bar a:hover::after { transform:scaleX(1); }
+    .fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #particleCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  .hidden-width {
+    visibility: hidden;
+    width: 0 !important;
+    padding: 0 !important;
+  }
+}
+  </style>
+</head>
+<body class="bg-black text-white font-sans relative min-h-screen overflow-x-hidden">
+
+  <audio id="background-music" autoplay loop>
+    <source src="background-music.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="notification-sound" src="notification.mp3" preload="auto"></audio>
+
+  <header class="w-full bg-gray-900 flex items-center justify-center py-6 px-4 space-x-4 relative z-10">
+    <img src="IMGS/Orion.png" alt="Logo" class="w-16 h-16" />
+    <div class="text-center">
+      <h1 class="text-4xl font-bold cursor-pointer" onclick="openGame()">Afterlife Gaming</h1>
+      <div id="time" class="text-sm text-gray-300"></div>
+    </div>
+  </header>
+
+  <div class="h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 z-20 relative"></div>
+
+  <nav class="nav-bar w-screen bg-gray-800 p-4 flex justify-center gap-6 text-lg m-0 z-10 relative">
+    <a href="index.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-home"></i> Home</a>
+    <a href="Games.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-gamepad"></i> Games</a>
+    <a href="chat.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-comments"></i> Chat</a>
+    <a href="Forms.html" class="hover:text-purple-400 nav-tab"><i class="fa-solid fa-pen-to-square"></i> Forms</a>
+    <a href="Haks.html" class="hover:text-purple-400"><i class="fa-solid fa-bolt"></i> Hacks</a>
+    <a href="Leaderboard.html" class="hover:text-purple-400"><i class="fa-solid fa-medal"></i> Leaderboard</a>
+    <a href="Ships.html" class="hover:text-purple-400"><i class="fa-solid fa-heart"></i> ShipSpace</a>
+  </nav>
+
+  <canvas id="particleCanvas" class="absolute top-0 left-0 z-0"></canvas>
+
+<div class="flex">
+  <div id="admin-left" class="w-48 bg-gray-800 p-2 md:block" style="visibility:hidden; background:none;">
+    <h3 class="text-sm font-bold mb-2">Private Rooms</h3>
+    <div id="private-rooms-list" class="space-y-2"></div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center">
+
+    <div class="flex flex-wrap justify-center gap-2 p-4">
+      <button id="global-btn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Global Chat</button>
+      <button id="create-room-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Create Private</button>
+      <button id="join-room-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Join Private</button>
+      <button id="change-username-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Change Username</button>
+      <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Logout</button>
+    </div>
+    <div id="chat-container" class="fixed bottom-0 left-60 right-60 mb-10 flex justify-center z-30">
+      <div class="w-full max-w-4xl bg-gray-900 bg-opacity-90 text-white rounded-lg shadow-lg p-4 flex flex-col h-[60vh]">
+    <div class="flex flex-wrap justify-between items-center mb-2">
+      <div class="flex items-center space-x-2">
+        <span id="current-username" class="font-semibold text-sm">–</span>
+        <span id="current-room" class="font-mono text-sm opacity-75">[Global]</span>
+      </div>
+    </div>
+
+    <div id="messages" class="flex-grow overflow-y-auto flex flex-col space-y-2 mb-4 px-2">
+    </div>
+    
+    <div id="typing-indicator" class="text-sm text-yellow-400 px-4 py-1 hidden"></div>
+
+    <form id="chat-form" class="flex">
+      <input id="message-input" type="text" placeholder="Type a message..."
+             class="flex-grow px-3 py-2 rounded-l bg-white text-black focus:outline-none"
+             autocomplete="off"/>
+      <button type="submit"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-r">
+        Send
+      </button>
+    </form>
+  </div>
+</div>
+  </div>
+
+  <div id="user-right" class="w-48 bg-gray-800 p-2 hidden md:block">
+    <h3 class="text-sm font-bold mb-2">Online Users</h3>
+    <div id="user-list" class="space-y-2"></div>
+  </div>
+</div>
+
+  <div id="auth-modal" class="fixed inset-0 flex items-center justify-center z-40"
+       style="background: rgba(0,0,0,0.75);">
+    <div class="bg-gray-900 text-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+      <h2 id="modal-title" class="text-2xl mb-4">Log In</h2>
+      <form id="auth-form" class="space-y-4">
+        <input id="auth-email"    type="email"    placeholder="Email"
+               class="w-full p-2 bg-gray-800 rounded" required/>
+        <input id="auth-password" type="password" placeholder="Password"
+               class="w-full p-2 bg-gray-800 rounded" required/>
+        <div id="auth-error" class="text-red-400 text-sm"></div>
+        <button type="submit"
+                class="w-full py-2 bg-purple-600 rounded hover:bg-purple-700 transition">
+          Continue
+        </button>
+      </form>
+      <div id="forgot-password-container" class="mt-2 text-center hidden">
+        <button id="forgot-password-btn" class="text-xs underline">
+          Forgot password or need an email resend?
+        </button>
+      </div>
+      <p class="mt-4 text-sm text-center">
+        <span id="toggle-text">Don’t have an account?</span>
+        <button id="toggle-auth" class="underline focus:outline-none">Sign Up</button>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(location.search);
+      if (params.get('mode') === 'verifyEmail' && params.get('oobCode')) {
+        firebase.auth().applyActionCode(params.get('oobCode'))
+          .then(() => alert('✅ Email verified! You can now log in.'))
+          .catch(err => alert('❌ ' + err.message))
+          .finally(() => history.replaceState({}, '', location.pathname));
+      }
+    });
+
+    function updateTime() {
+      const opts = { weekday:'long', hour:'numeric', minute:'2-digit', hour12:true };
+      document.getElementById('time').textContent = new Date().toLocaleString('en-US', opts);
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    const canvas = document.getElementById('particleCanvas'),
+          ctx    = canvas.getContext('2d');
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = document.documentElement.scrollHeight;
+    }
+    window.addEventListener('load', resizeCanvas);
+    window.addEventListener('resize', resizeCanvas);
+    class Particle {
+      constructor(){
+        this.radius  = Math.random()*6+4;
+        this.x       = Math.random()*canvas.width;
+        this.y       = canvas.height + this.radius;
+        this.speedY  = Math.random()*4+2;
+        this.opacity = Math.random()*0.5+0.5;
+      }
+      update(){
+        this.y -= this.speedY;
+        if (this.y < -this.radius){
+          this.y = canvas.height + this.radius;
+          this.x = Math.random()*canvas.width;
+        }
+      }
+      draw(){
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);
+        ctx.shadowBlur  = 20;
+        ctx.shadowColor = 'rgba(82,23,124,1)';
+        ctx.fillStyle   = `rgba(82,23,124,${this.opacity})`;
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+    let particles = [];
+    function initParticles(){
+      particles = Array.from({length:100}, ()=>new Particle());
+    }
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(p=>{ p.update(); p.draw(); });
+      requestAnimationFrame(animate);
+    }
+    initParticles();
+    animate();
+
+    function openGame(){
+      const win = window.open();
+      win.document.write(
+        '<html><body style="margin:0;padding:0;">' +
+        '<iframe src="Home.html" style="width:100%;height:100%;border:none;"></iframe>' +
+        '</body></html>'
+      );
+    }
+
+    function makeCode(){
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for(let i=0; i<4; i++){
+        code += chars.charAt(Math.floor(Math.random()*chars.length));
+      }
+      return code;
+    }
+
+    function setActiveRoom(type, code) {
+  activeRef.off();
+  messagesEl.innerHTML = '';
+
+  if (type === 'global') {
+    activeRef = globalRef;
+    activeCode = null;
+    document.getElementById('current-room').textContent = '[Global]';
+  } else {
+    activeRef = db.ref(`privateRooms/${code}/messages`);
+    activeCode = code;
+    document.getElementById('current-room').textContent = `[${code}]`;
+  }
+  activeRoomType = type;
+
+  if (type === 'global') {
+    const now           = new Date();
+    const startOfToday  = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const endOfWindow   = startOfToday + 24 * 60 * 60 * 1000;            
+    const startOfWindow = isAdmin
+      ? startOfToday - 2 * 24 * 60 * 60 * 1000  
+      : startOfToday;                           
+
+    activeRef
+      .limitToLast(100)
+      .on('child_added', snap => {
+        const msg = snap.val();
+        msg.id = snap.key;
+
+        console.log('got msg ts=', msg.ts, 'text=', msg.text);
+
+        if (msg.ts < startOfWindow || msg.ts >= endOfWindow) {
+          console.log(' → filtered out');
+          return;
+        }
+
+        appendMessage(msg, msg.uid === firebase.auth().currentUser.uid);
+      });
+
+  } else {
+    activeRef.on('child_added', snap => {
+      const msg = snap.val();
+      msg.id = snap.key;
+      appendMessage(msg, msg.uid === firebase.auth().currentUser.uid);
+    });
+  }
+}
+
+
+    const messagesEl    = document.getElementById('messages'),
+          form          = document.getElementById('chat-form'),
+          input         = document.getElementById('message-input'),
+          globalBtn     = document.getElementById('global-btn'),
+          createBtn     = document.getElementById('create-room-btn'),
+          joinBtn       = document.getElementById('join-room-btn'),
+          logoutBtn     = document.getElementById('logout-btn'),
+          changeUserBtn = document.getElementById('change-username-btn');
+          const typingIndicator = document.getElementById('typing-indicator');
+let typingRef = null;
+    globalBtn.onclick = () => setActiveRoom('global', null);
+
+    createBtn.onclick = () => {
+  const code = makeCode(),
+        uid  = firebase.auth().currentUser.uid;
+  db.ref(`privateRooms/${code}/members/${uid}`)
+    .set(true)
+    .then(() => {
+      db.ref(`privateRooms/${code}/messages`).push({
+        uid: 'system',
+        username: 'system',
+        text: 'Private room created',
+        ts: Date.now()
+      });
+    })
+    .then(() => setActiveRoom('private', code));
+};
+
+    joinBtn.onclick = () => {
+      const raw = prompt('Enter 4-character room code:');
+      if(!raw) return;
+      const code = raw.trim().toUpperCase();
+      db.ref(`privateRooms/${code}`)
+        .once('value')
+        .then(snap => {
+          if(!snap.exists()) throw 'Invalid room code';
+          return db.ref(`privateRooms/${code}/members/${firebase.auth().currentUser.uid}`)
+                   .set(true);
+        })
+        .then(() => setActiveRoom('private', code))
+        .catch(err => alert(err));
+    };
+
+    let lastSent = 0;
+
+    input.addEventListener('input', () => {
+  if (!firebase.auth().currentUser) return;
+  if (isBanned) return;
+
+  if (!typingRef) {
+    typingRef = db.ref('typing/' + firebase.auth().currentUser.uid);
+    typingRef.onDisconnect().remove();
+  }
+  typingRef.set(currentUsername);
+});
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  if (text.length > 140) {
+    alert('Messages must be 140 characters or fewer.');
+    return;
+  }
+
+  const now = Date.now();
+  if (now - lastSent < 2000) {
+    alert('Slow down! You’re sending messages too fast.');
+    return;
+  }
+
+  db.ref('onlineUsers/' + firebase.auth().currentUser.uid).once('value').then(snap => {
+    const data = snap.val();
+    if (data && data.banned) {
+      appendSystemMessage('You are banned and cannot send messages.');
+      input.value = '';
+      return;
+    }
+
+    const msg = {
+      uid:      firebase.auth().currentUser.uid,
+      username: currentUsername,
+      text,
+      ts:       now
+    };
+
+    input.value = '';
+    activeRef.push(msg).catch(console.error);
+    lastSent = now;
+    input.disabled = true;
+    setTimeout(() => input.disabled = false, 2000);
+  });
+});
+
+
+    function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, tag => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[tag]));
+}
+
+    function appendMessage({ username, text, ts, uid, id }, self) {
+      const shouldScroll = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 50;
+
+  const el = document.createElement('div');
+  el.id = `msg-${id}`;
+  let bgClass;
+if (uid === 'system') {
+  bgClass = 'bg-yellow-400 text-black self-center';
+} else if (self) {
+  bgClass = 'bg-gray-200 text-black self-end';
+} else {
+  bgClass = 'bg-purple-500 text-white self-start';
+}
+
+el.className = [
+  'mb-2', 'px-4', 'py-2', 'rounded-lg', 'max-w-xs',
+  bgClass
+].join(' ');
+
+el.classList.add('fade-in');
+
+  const time = new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const safeText = escapeHTML(text);
+  const linkedText = safeText.replace(
+    /(https?:\/\/[^\s]+)/g,
+    url => `<a href="${url}" target="_blank" class="underline">${url}</a>`
+  );
+
+  el.innerHTML = `
+    <div class="text-xs opacity-75 mb-1">
+      ${self ? 'You' : username} • ${time}
+      ${isAdmin ? `<button onclick="deleteMessage('${id}')" class="ml-2 text-red-400 hover:text-red-600">x</button>` : ''}
+    </div>
+    <div>${linkedText}</div>
+  `;
+
+  messagesEl.appendChild(el);
+  
+  if (shouldScroll) {
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+if (!self) {
+  document.getElementById('notification-sound').play().catch(() => {});
+}
+}
+
+function appendSystemMessage(text) {
+  const shouldScroll = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 100;
+
+  const el = document.createElement('div');
+  el.className = 'mb-2 px-4 py-2 rounded-lg max-w-xs bg-yellow-400 text-black self-center text-center text-sm font-semibold';
+  el.textContent = text;
+
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+messagesEl.appendChild(el);
+
+if (shouldScroll) {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+}
+
+    const modal      = document.getElementById('auth-modal'),
+          authForm   = document.getElementById('auth-form'),
+          emailInput = document.getElementById('auth-email'),
+          passInput  = document.getElementById('auth-password'),
+          authError  = document.getElementById('auth-error'),
+          forgotCont = document.getElementById('forgot-password-container'),
+          forgotBtn  = document.getElementById('forgot-password-btn'),
+          toggleText = document.getElementById('toggle-text'),
+          toggleAuth = document.getElementById('toggle-auth'),
+          modalTitle = document.getElementById('modal-title');
+    let isSigningUp = false;
+
+    function updateForgotUI(){
+      forgotCont.classList.toggle('hidden', isSigningUp);
+    }
+
+    toggleAuth.addEventListener('click', () => {
+      isSigningUp = !isSigningUp;
+      modalTitle.textContent = isSigningUp ? 'Sign Up' : 'Log In';
+      toggleText.textContent  = isSigningUp
+        ? 'Already have an account?' : 'Don’t have an account?';
+      toggleAuth.textContent  = isSigningUp ? 'Log In' : 'Sign Up';
+      authError.textContent   = '';
+      updateForgotUI();
+    });
+
+    forgotBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      if(!email) return authError.textContent = 'Enter your email first';
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => authError.textContent = 'Reset email sent!')
+        .catch(err => authError.textContent = err.message);
+    });
+
+    firebase.auth().onAuthStateChanged(user => {
+      if(user){
+        if(user.emailVerified){
+          modal.style.display = 'none';
+          setupUser(user);
+        } else {
+          modal.style.display = 'flex';
+          authError.textContent = 'Please verify your email first.';
+        }
+      } else {
+        modal.style.display = 'flex';
+        authError.textContent = '';
+      }
+    });
+
+    authForm.addEventListener('submit', e => {
+      e.preventDefault();
+      authError.textContent = '';
+      const email = emailInput.value.trim(),
+            pass  = passInput.value;
+      if(isSigningUp){
+        const schoolEmailRe = /^1\d{6}@lwsd\.org$/;
+        if(!schoolEmailRe.test(email)){
+          return authError.textContent = "That's not your school email";
+        }
+        firebase.auth().createUserWithEmailAndPassword(email, pass)
+          .then(({user}) => user.sendEmailVerification({
+            url: location.origin + location.pathname
+          }))
+          .then(() => {
+            authError.textContent = 'Verification email sent!';
+            isSigningUp = false;
+            modalTitle.textContent = 'Log In';
+            toggleText.textContent  = 'Don’t have an account?';
+            toggleAuth.textContent  = 'Sign Up';
+            updateForgotUI();
+          })
+          .catch(err => {
+            if(err.code === 'auth/email-already-in-use'){
+              authError.textContent = 'Email already registered';
+              isSigningUp = false;
+              modalTitle.textContent = 'Log In';
+              toggleText.textContent  = 'Don’t have an account?';
+              toggleAuth.textContent  = 'Sign Up';
+              updateForgotUI();
+            } else {
+              authError.textContent = err.message;
+            }
+          });
+      } else {
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+          .catch(err => {
+            if(err.code === 'auth/user-not-found') authError.textContent = 'No account found';
+            else if(err.code === 'auth/wrong-password') authError.textContent = 'Bad password';
+            else authError.textContent = err.message;
+          });
+      }
+    });
+
+    function setupUser(user) {
+  const userRef = db.ref('users/' + user.uid);
+
+  userRef.once('value').then(snap => {
+    const data = snap.val() || {};
+    currentUsername = data.username || user.email;
+    document.getElementById('current-username').textContent = currentUsername;
+
+    isAdmin = ADMIN_EMAILS.includes(user.email);
+const adminLeft = document.getElementById('admin-left');
+const userRight = document.getElementById('user-right');
+
+if (isAdmin) {
+  adminLeft.style.visibility = 'visible';
+  adminLeft.style.background = '';
+  userRight.classList.remove('hidden');
+  listenPrivateRooms();
+} else {
+  adminLeft.style.visibility = 'hidden';
+  adminLeft.style.background = 'none';
+}
+
+document.getElementById('user-right').classList.remove('hidden');
+listenOnlineUsers();
+listenTyping();
+
+
+    if (!data.username) {
+      userRef.set({ email: user.email, username: currentUsername });
+    }
+
+    const onlineRef = db.ref('onlineUsers/' + user.uid);
+    onlineRef.set({ username: currentUsername, banned: false });
+onlineRef.on('value', snap => {
+  const data = snap.val();
+  if (data && data.banned) {
+    isBanned = true;
+  } else {
+    isBanned = false;
+  }
+});
+    onlineRef.onDisconnect().remove();
+
+    document.getElementById('logout-btn').onclick = () => firebase.auth().signOut();
+
+    document.getElementById('change-username-btn').onclick = () => {
+      const newU = prompt('Enter new username (max 16 characters):', currentUsername);
+      if (!newU || newU === currentUsername) return;
+      if (newU.length > 16) {
+        alert('Username must be 16 characters or fewer.');
+        return;
+      }
+
+      db.ref('users').orderByChild('username').equalTo(newU)
+        .once('value')
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            const uids = Object.keys(snapshot.val());
+            if (!(uids.length === 1 && uids[0] === user.uid)) {
+              throw 'Username taken';
+            }
+          }
+          return userRef.update({ username: newU });
+        })
+        .then(() => {
+          currentUsername = newU;
+          document.getElementById('current-username').textContent = newU;
+          onlineRef.update({ username: newU });
+          alert('Username updated!');
+        })
+        .catch(err => alert(typeof err === 'string' ? err : err.message));
+    };
+
+    setActiveRoom('global', null);
+  });
+}
+
+    function listenPrivateRooms() {
+  db.ref('privateRooms').on('value', snap => {
+    const container = document.getElementById('private-rooms-list');
+    container.innerHTML = '';
+    snap.forEach(roomSnap => {
+      const code = roomSnap.key;
+      const btn = document.createElement('button');
+      btn.className = 'block w-full text-left text-white bg-purple-600 hover:bg-purple-700 rounded px-2 py-1';
+      btn.textContent = code;
+      btn.onclick = () => setActiveRoom('private', code);
+      container.appendChild(btn);
+    });
+  });
+}
+function listenOnlineUsers() {
+  db.ref('onlineUsers').on('value', snap => {
+    const container = document.getElementById('user-list');
+    container.innerHTML = '';
+
+    snap.forEach(userSnap => {
+      const { username, banned } = userSnap.val();
+      const uid = userSnap.key;
+
+      const btn = document.createElement('button');
+      btn.className = 'block w-full text-left rounded px-2 py-1 font-semibold ' +
+                      (banned ? 'bg-red-500' : 'bg-green-500');
+
+      btn.textContent = (username || uid) + (banned ? ' (BANNED)' : '');
+
+      if (isAdmin) {
+        btn.classList.add('hover:bg-red-600', 'hover:bg-green-600');
+        btn.onclick = () => {
+          db.ref('onlineUsers/' + uid).update({ banned: !banned });
+        };
+      } else {
+        btn.disabled = true;
+        btn.classList.add('cursor-not-allowed');
+      }
+
+      container.appendChild(btn);
+    });
+  });
+}
+
+function toggleBan(uid, banned) {
+  db.ref('onlineUsers/' + uid + '/banned').set(!banned)
+    .then(() => {
+      console.log(`User ${uid} ban toggled to ${!banned}`);
+    })
+    .catch(console.error);
+}
+
+function deleteMessage(id) {
+  if (!id) return;
+
+  const el = document.getElementById(`msg-${id}`);
+  if (el) el.remove();
+
+  if (activeRoomType === 'global') {
+    globalRef.child(id).remove();
+  } else if (activeCode) {
+    db.ref(`privateRooms/${activeCode}/messages/${id}`).remove();
+  }
+}
+function listenTyping() {
+  firebase.database().ref('typing').on('value', snap => {
+    const typing = snap.val() || {};
+    const usernames = Object.values(typing).filter(name => name !== currentUsername);
+
+    let typingText = '';
+    if (usernames.length === 1) {
+      typingText = `${usernames[0]} is typing...`;
+    } else if (usernames.length === 2) {
+      typingText = `${usernames[0]}, ${usernames[1]} are typing...`;
+    } else if (usernames.length > 2) {
+      typingText = `${usernames[0]}, ${usernames[1]}, +${usernames.length - 2} more are typing...`;
+    }
+
+    typingIndicator.textContent = typingText;
+typingIndicator.classList.toggle('hidden', !typingText);
+  });
+}
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key.toLowerCase() === "u")
+      ) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
