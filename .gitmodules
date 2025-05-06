@@ -1,0 +1,3 @@
+[submodule "ultraviolet"]
+	path = ultraviolet
+	url = https://github.com/titaniumnetwork-dev/Ultraviolet-App.git
