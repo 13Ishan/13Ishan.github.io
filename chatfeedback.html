@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Afterlife | Chat Feedback</title>
+  <link rel="icon" href="IMGS/Orion.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/d063d200ea.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+  <style>
+    .nav-bar a {
+      position: relative;
+    }
+    .nav-bar a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background-color: rgba(168, 85, 247, 0.6);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .nav-bar a:hover::after {
+      transform: scaleX(1);
+    }
+  </style>
+</head>
+<body
+  onload="window.scrollTo(0,0)"
+  class="bg-black text-white font-sans relative min-h-screen overflow-x-hidden m-0 p-0 w-screen"
+>
+
+  <audio id="background-music" autoplay loop>
+    <source src="background-music.mp3" type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+
+  <header class="w-full bg-gray-900 flex items-center justify-center py-6 px-4 space-x-4 relative z-10">
+    <img src="IMGS/Orion.png" alt="Logo" class="w-16 h-16" />
+    <div class="text-center">
+      <h1 class="text-4xl font-bold cursor-pointer" onclick="openGame()">Afterlife Gaming</h1>
+      <div id="time" class="text-sm text-gray-300"></div>
+    </div>
+  </header>
+
+  <div class="h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 z-20 relative"></div>
+
+  <nav class="nav-bar w-screen bg-gray-800 p-4 flex justify-center gap-6 text-lg m-0 z-10 relative">
+    <a href="index.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-home"></i> Home</a>
+    <a href="Games.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-gamepad"></i> Games</a>
+    <a href="chatfeedback.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-comments"></i> Chat</a>
+    <a href="Forms.html" class="hover:text-purple-400 nav-tab"><i class="fa-solid fa-pen-to-square"></i> Forms</a>
+    <a href="Haks.html" class="hover:text-purple-400"><i class="fa-solid fa-bolt"></i> Hacks</a>
+    <a href="Leaderboard.html" class="hover:text-purple-400"><i class="fa-solid fa-medal"></i> Leaderboard</a>
+    <a href="Ships.html" class="hover:text-purple-400"><i class="fa-solid fa-heart"></i> ShipSpace</a>
+  </nav>
+
+  <main class="px-6 py-10 max-w-3xl mx-auto z-10 relative space-y-8">
+
+    <div class="bg-white text-black rounded-2xl p-6 shadow-lg max-w-md mx-auto"
+         style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+      <p>
+Please help us by fill out the form below. We are always looking to improve our chat experience and your feedback is invaluable. Your responses will be used to enhance the chat experience for all users.<br></b>
+      </p>
+    
+    <div class="w-full">
+      <object
+        data="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__5Wp-IVUOVlNWUdPUjlLVUhEWlA1NzIyVVRZUU5NVi4u"
+        type="text/html"
+        width="100%"
+        height="1200px"
+        style="border:none;"
+      >
+        <p class="text-center text-gray-400">
+          Your browser doesn't support embedded forms. 
+          <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAN__5Wp-IVUOVlNWUdPUjlLVUhEWlA1NzIyVVRZUU5NVi4u"
+             class="text-purple-300 underline"
+             target="_blank">Open the feedback form</a>.
+        </p>
+      </object>
+    </div>
+
+  </main>
+
+  <canvas id="particleCanvas" class="absolute top-0 left-0 z-0"></canvas>
+
+  <script>
+      window.addEventListener('load', () => {
+    setTimeout(() => window.scrollTo(0, 0), 0);
+  });
+    function updateTime() {
+      const options = { weekday: 'long', hour: 'numeric', minute: '2-digit', hour12: true };
+      const now = new Date();
+      document.getElementById('time').textContent = now.toLocaleString('en-US', options);
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    const canvas = document.getElementById("particleCanvas");
+  const ctx    = canvas.getContext("2d");
+
+  function resizeCanvas() {
+    const w = window.innerWidth;
+    const h = document.documentElement.scrollHeight;
+    canvas.width  = w;
+    canvas.height = h;
+    canvas.style.width  = w + "px";
+    canvas.style.height = h + "px";
+  }
+
+  window.addEventListener("load", () => {
+    resizeCanvas();
+    setTimeout(() => window.scrollTo(0,0), 0);
+  });
+  window.addEventListener("resize", resizeCanvas);
+
+  class Particle {
+    constructor() {
+      this.radius = Math.random() * 6 + 4;
+      this.x      = Math.random() * canvas.width;
+      this.y      = canvas.height + this.radius;
+      this.speedY = Math.random() * 4 + 2;
+      this.opacity= Math.random() * 0.5 + 0.5;
+    }
+    update() {
+      this.y -= this.speedY;
+      if (this.y < -this.radius) {
+        this.y = canvas.height + this.radius;
+        this.x = Math.random() * canvas.width;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.shadowBlur   = 20;
+      ctx.shadowColor  = "rgba(82, 23, 124, 1)";
+      ctx.fillStyle    = `rgba(82, 23, 124, ${this.opacity})`;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  let particles = [];
+  function init() {
+    particles = [];
+    for (let i = 0; i < 100; i++) particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+
+  resizeCanvas();
+  init();
+  animate();
+    window.addEventListener("resize", resizeCanvas);
+
+    function openGame() {
+      var win = window.open();
+      win.document.write('<html><body style="margin:0;padding:0;"><iframe src="Home.html" style="width:100%;height:100%;border:none;"></iframe></body></html>');
+    }
+
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key.toLowerCase() === "u")
+      ) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
