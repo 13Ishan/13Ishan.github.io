@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Afterlife | Games</title>
+  <link rel="icon" type="image/x-icon" href="IMGS/Orion.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/d063d200ea.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+  <script>
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("time").textContent = now.toLocaleString("en-US", {
+        weekday: "long",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+    setInterval(updateTime, 1000);
+    window.onload = updateTime;
+  </script>
+  <style>
+    .nav-bar a {
+      position: relative;
+    }
+    .nav-bar a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background-color: rgba(168, 85, 247, 0.6);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .nav-bar a:hover::after {
+      transform: scaleX(1);
+    }
+    .LOL { position: relative; }
+
+.LOL {
+  position: relative;
+}
+
+.LOL::after {
+  content: attr(data-name);
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%) translateY(-0.5rem) scale(0.9);
+  background: rgba(24, 24, 27, 0.75);
+  backdrop-filter: blur(4px);
+  color: #E0E0E0;
+  padding: 0.35em 0.6em;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.6), 
+              0 0 16px rgba(168, 85, 247, 0.4);
+  text-shadow: 0 0 4px rgba(168, 85, 247, 0.8);
+  transition: 
+    opacity 0.2s ease-out,
+    transform 0.2s cubic-bezier(0.2, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.LOL::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: rgba(24, 24, 27, 0.75) transparent transparent transparent;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  z-index: 10;
+}
+
+.LOL:hover::after,
+.LOL:hover::before {
+  opacity: 1;
+}
+    
+.LOL:hover::after {
+  transform: translateX(-50%) translateY(0) scale(1.05);
+}
+  </style>
+</head>
+<body class="bg-black text-white font-sans relative min-h-screen overflow-x-hidden m-0 p-0 w-screen">
+  <audio id="background-music" autoplay loop>
+    <source src="background-music.mp3" type="audio/mpeg" />
+  </audio>
+  <canvas id="particleCanvas" class="fixed top-0 left-0 w-screen h-screen -z-10 pointer-events-none"></canvas>
+
+  <header class="w-screen bg-gray-900 flex items-center justify-center py-6 px-0 space-x-4 m-0 relative z-10">
+    <img src="IMGS/Orion.png" alt="Logo" class="w-16 h-16" />
+    <div class="text-center">
+      <h1 class="text-4xl font-bold">Afterlife Gaming</h1>
+      <div id="time" class="text-sm text-gray-300"></div>
+    </div>
+  </header>
+
+  <div class="h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 z-20 relative"></div>
+  <nav class="nav-bar w-screen bg-gray-800 p-4 flex justify-center gap-6 text-lg m-0 z-10 relative">
+    <a href="index.html" class="hover:text-purple-400"><i class="fas fa-home"></i> Home</a>
+    <a href="Games.html" class="hover:text-purple-400"><i class="fas fa-gamepad"></i> Games</a>
+    <a href="chat.html" class="hover:text-purple-400 nav-tab"><i class="fas fa-comments"></i> Chat</a>
+    <a href="Forms.html" class="hover:text-purple-400"><i class="fa-solid fa-pen-to-square"></i> Forms</a>
+    <a href="Haks.html" class="hover:text-purple-400"><i class="fa-solid fa-bolt"></i> Hacks</a>
+    <a href="Leaderboard.html" class="hover:text-purple-400"><i class="fa-solid fa-medal"></i> Leaderboard</a>
+    <a href="Ships.html" class="hover:text-purple-400"><i class="fa-solid fa-heart"></i> ShipSpace</a>
+  </nav>
+
+  <input type="text" id="searchBar" placeholder="Search for a game..."
+    class="block w-4/5 max-w-xl mx-auto my-6 p-3 text-white bg-gray-800 border border-gray-700 rounded sticky top-3 z-40 shadow-md backdrop-blur" />
+
+  <div class="fixed top-1/2 right-0 transform -translate-y-1/2 flex flex-col gap-2 p-3 bg-gray-900/80 shadow-lg rounded-l-lg z-50" id="featuredGamesBar"></div>
+
+  <main class="px-6 py-8 max-w-7xl mx-auto z-10 relative">
+    <div id="gameGrid" class="grid grid-cols-3 md:grid-cols-6 gap-4"></div>
+  </main>
+
+  <div id="game-container" class="fixed inset-0 bg-black bg-opacity-0 z-50 flex items-center justify-center transition-opacity duration-[3000ms] pointer-events-none hidden">
+    <button id="back-button" onclick="closeGame()" class="absolute top-4 left-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-purple-600 z-50 hidden">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <iframe id="game-frame" src="" class="w-full h-full border-none opacity-0 transition-opacity duration-[3000ms]"></iframe>
+  </div>
+
+  <script>
+    const games = [
+      { name: "Cookie Clicker", img: "IMGS/Cookie.png", url: "https://skibidijglkdjlkghoieyu.github.io//games/cookie-clicker/index.html" },
+      { name: "Acorn13", img: "IMGS/Acorn13.png", url: "https://acorn13.github.io" },
+      { name: "Appel", img: "IMGS/Appel.png", url: "Games/appel.html" },
+      { name: "Geometry Dash", img: "IMGS/GD.png", url: "Games/geodash.html" },
+      { name: "Mario 64", img: "IMGS/SM64.png", url: "https://7s-4a2.pages.dev/g/supermario64" },
+      { name: "Minecraft", img: "IMGS/EC.png", url: "Games/EaglercraftX_1.8_u50%20ultimate%20[JS].html" },
+       { name: "Monkey Mart", img: "IMGS/Monkey.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/monkey-mart" },
+      { name: "Paper.io", img: "IMGS/Paperio.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/paperio2/" },
+       { name: "Retrobowl", img: "IMGS/RB.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/retro-bowl/" },
+      { name: "Slope", img: "IMGS/Slope.png", url: "Games/slope.html" },
+       { name: "Ryan's Sussy Gaming", img: "IMGS/RSG.png", url: "https://skibidijglkdjlkghoieyu.github.io/" },
+      { name: "Gams", img: "IMGS/GamsB.png", url: "https://spotify-playlist11.github.io/4o5231o4u1o/Gams.html" },
+       { name: "MonkeyGG2", img: "IMGS/MK.png", url: "https://Jake1283645473.github.io/AbyanIsBetter" },
+       { name: "Hub-Pro", img: "IMGS/Hub-Pro.png", url: "https://hub-pro.github.io" },
+       { name: "Slope 3D", img: "IMGS/Slope3d.png", url: "https://slope3d.github.io" },
+       { name: "Mario", img: "IMGS/SM2.png", url: "https://fulscreenmario.github.io/" }, 
+       { name: "Subway Surfers", img: "IMGS/Subway.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/subway-surfers/" },
+     { name: "KrishyDaFishy", img: "IMGS/KTF.png", url: "https://bio.link/booleanbob" },
+       { name: "Ironsnout", img: "IMGS/IS.png", url: "https://betterbull.com/uploads/5/5/6/7/5567194/custom_themes/811766381464516446/files/index.html" },
+       { name: "Unblocked Cave", img: "IMGS/UC.PNG", url: "https://wetlandgamesjack.github.io/games/games.html" },
+       { name: "Idle Breakout", img: "IMGS/Idle.png", url: "https://skibidijglkdjlkghoieyu.github.io//games/idle-breakout/" },
+       { name: "Drift Boss", img: "IMGS/Boss.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/drift-boss/" },
+      { name: "Basketball Random", img: "IMGS/BR.png", url: "https://basket-random-game.github.io/file/" },
+       { name: "Burger Bounty", img: "IMGS/BB.png", url: "https://Burger-Bounty.github.io" },
+       { name: "NintendoBoi", img: "IMGS/Nint.png", url: "https://skibidiman23132.github.io/" },
+      { name: "Blooket.pages.dev", img: "IMGS/Blook.png", url: "https://polight1.github.io" },
+    { name: "Block Blast", img: "IMGS/Blok.png", url: "https://why12389.github.io/block.io/" },
+       { name: "Burrito Bison", img: "IMGS/BB2.png", url: "https://polight1.github.io/iueouryw3i-urghfdruogfo4wqy9-4-FEW5-GYHT6IY23-UYWHYQE8URBNU3egf97nr-5p-/file/index.html" },
+       { name: "Flappy Bird", img: "IMGS/FB2.png", url: "https://calcmathprojects.github.io/calcmathpro.github.io/" },
+      { name: "Absurd Appel", img: "IMGS/AbsurdApple.png", url: "Games/absurdappel.html" },
+      { name: "Agar.io lite", img: "IMGS/Agar.io.png", url: "Games/Agar.io.html" },
+      { name: "Slither.io", img: "IMGS/Slither.png", url: "Games/slither.io-master/index.html" },
+       { name: "Bacon May Die", img: "IMGS/BMD2.png", url: "https://www.betterbull.com/uploads/5/5/6/7/5567194/custom_themes/320690105873469650/files/index.html" },
+       { name: "Slope 2", img: "IMGS/Slope2.png", url: "https://studyisimportant.github.io/slope2/" },
+       { name: "Friday Night Funkin", img: "IMGS/FNF.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/friday-night-funkin/" },
+      { name: "Ball Blast", img: "IMGS/Ballblast.png", url: "https://skibidijglkdjlkghoieyu.github.io/w-rt2hoeyh2uoe1ygh9w/Ball%20Blast%20-%20Mobile%20friendly.html" },
+       { name: "Google Island Games", img: "IMGS/GoogleIsland.png", url: "https://gameblabla.github.io/doodle-champion-island-games-Google/" },
+      { name: "Poly Track", img: "IMGS/Poly.png", url: "https://astroid5710.github.io/polytrack-clone/" },
+       { name: "Hole.io", img: "IMGS/Holeio.png", url: "https://google-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/gertdoro/Toolkit@93a27eabbbe5eb626af5b9b7dd0926ac16810a41/Code/Java/hole.xml&container=ig')" },
+      { name: "Paperclip clicker", img: "IMGS/PaperClip.png", url: "Games/paperclips/index2.html" },
+      { name: "Yohoho.io", img: "IMGS/Yohoho.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/yohoho/index.html" },
+       { name: "Chrome Dino", img: "IMGS/Dino.png", url: "https://vortexfusion.github.io/nebula/chrome-dino/index.html" },
+      { name: "Snowball.io", img: "IMGS/Snowballio.png", url: "https://kasperisalittlebitch.github.io/snowbattle/" },
+      { name: "N-gon", img: "IMGS/N-gon.png", url: "https://skibidijglkdjlkghoieyu.github.io//games/n-gon/index.html" },
+    { name: "Learn To Fly", img: "IMGS/LTF.png", url: "https://skibidijglkdjlkghoieyu.github.io//games/flash/?game=learn-to-fly" },
+       { name: "Learn To Fly 2", img: "IMGS/LTF2.png", url: "https://skibidijglkdjlkghoieyu.github.io//games/flash/?game=learn-to-fly-2" },
+       { name: "Learn To Fly 3", img: "IMGS/LTF3.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=learn-to-fly-3" },
+       { name: "Badtime Simulator", img: "IMGS/BadTime.png", url: "https://hotamago.github.io/sans/" },
+       { name: "Basketball Stars", img: "IMGS/B-star.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/basketball-stars/" },
+       { name: "Vex 3", img: "IMGS/V4.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/vex-3/index.html" },
+       { name: "Vex 4", img: "IMGS/V4.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/vex-4/index.html" },
+       { name: "Vex 5", img: "IMGS/V5.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/vex-5/index.html" },
+       { name: "Vex 6", img: "IMGS/V6.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/vex-6/index.html" },
+       { name: "Vex 7", img: "IMGS/V7.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/vex-7/index.html" },
+       { name: "Bitlife", img: "IMGS/Bitlife.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/bit-life/" },
+       { name: "Duck Life", img: "IMGS/Duck.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=duck-life" },
+       { name: "Duck Life 2", img: "IMGS/Duck2.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=duck-life-2" },
+       { name: "Duck Life 3", img: "IMGS/Duck3.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=duck-life-3" },
+       { name: "Duck Life 4", img: "IMGS/Duck4.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=duck-life-4" },
+       { name: "Duck Life 5", img: "IMGS/Duck5.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/flash/?game=duck-life-5" },
+       { name: "Time Shooter", img: "IMGS/Time.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/time-shooter/" },
+       { name: "Time Shooter 3", img: "IMGS/Time3.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/time-shooter-3/" },
+      { name: "World's Hardest Game", img: "IMGS/WHG.png", url: "https://kasperisalittlebitch.github.io/worlds-hardest-game/index.html" },
+     { name: "Tiny Fishing", img: "IMGS/Fishing.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/tiny-fishing/" },
+       { name: "Stickman Hook", img: "IMGS/SMhook.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/stickman-hook/" },
+       { name: "MotoX3M", img: "IMGS/Moto.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/motox3m/index.html" },
+       { name: "Tetris", img: "IMGS/Tetris.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/tetris/" },
+       { name: "Tanuki Sunset", img: "IMGS/Tanuki.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/tanuki-sunset/" },
+       { name: "Clicker Heroes", img: "IMGS/ClickerH.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/clicker-heroes/" },
+       { name: "Backrooms", img: "IMGS/Back.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/backrooms/" },
+       { name: "Cut The Rope", img: "IMGS/CTR.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/cut-the-rope/" },
+       { name: "Level Devil", img: "IMGS/Devil.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/index.html" },
+      { name: "Appel Multiplayer", img: "IMGS/MPA.png", url: "Games/appelmulti.html" },
+      { name: "Gun Mayhem", img: "IMGS/GMYM.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/gun-mayhem/" },
+       { name: "Gun Mayhem 2", img: "IMGS/GMYM2.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/gun-mayhem-2/" },
+       { name: "Temple Run 2", img: "IMGS/TR2.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/temple-run-2/" },
+       { name: "Coreball", img: "IMGS/Core.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/core-ball/" },
+      { name: "Soccer Random", img: "IMGS/SR.png", url: "https://wetlandgamesjack.github.io/games/games/SoccerRandom/index.html" },
+       { name: "Gunspin", img: "IMGS/Gunspin.png", url: "https://skibidijglkdjlkghoieyu.github.io/games/gunspin/" },
+       { name: "Hacker Typer", img: "IMGS/Hackertyper.png", url: "https://wetlandgamesjack.github.io/games/games/HackerTyper/index.html" },
+       { name: "Game Inside A Game", img: "IMGS/GIAG.png", url: "https://skibidijglkdjlkghoieyu.github.io/a/game-inside/" },
+       { name: "Tomb Of The Mask", img: "IMGS/Tomb.png", url: "https://tomb-of-the-mask-online.github.io/file/" },
+      { name: "Getting Over It", img: "IMGS/GOI.png", url: "Games/gettingoverit.html" },
+      { name: "Snow Rider 3D", img: "IMGS/snow-rider-3d.png", url: "Games/Snow Rider 3D.html" },
+      { name: "Escape Road", img: "IMGS/ESC.png", url: "https://ccported.onrender.com/play/?id=game_5785_1561b7c94b62d&server=1" },
+    ];
+
+    const featuredGameNames = ["Slope", "Snow Rider 3D", "Getting Over It"];
+
+    function renderGames(list) {
+      const container = document.getElementById("gameGrid");
+      container.innerHTML = "";
+      list.forEach(game => {
+        const div = document.createElement("div");
+        div.className = "LOL cursor-pointer transition-transform duration-300 hover:scale-95 hover:shadow-md hover:shadow-purple-500/30";
+        div.setAttribute("data-name", game.name);
+        div.innerHTML = `
+          <a href="#" onclick="openpage('${game.url}')">
+            <img src="${game.img}" alt="${game.name}" class="rounded-lg w-full h-full object-cover" />
+          </a>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderFeaturedGames() {
+      const container = document.getElementById("featuredGamesBar");
+      const title = document.createElement("div");
+      title.className = "text-yellow-400 font-semibold text-sm text-center mb-2";
+      title.textContent = "Featured Games";
+      container.innerHTML = "";
+      container.appendChild(title);
+
+      const featured = games.filter(game => featuredGameNames.includes(game.name));
+      featured.forEach(game => {
+        const div = document.createElement("div");
+        div.className = "featured-game w-24 h-24 cursor-pointer rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50";
+        div.setAttribute("data-name", game.name);
+        div.innerHTML = `<img src="${game.img}" alt="${game.name}">`;
+        div.onclick = () => openpage(game.url);
+        container.appendChild(div);
+      });
+    }
+
+    function openpage(url) {
+      const gameFrame = document.getElementById('game-frame');
+      const container = document.getElementById('game-container');
+      gameFrame.src = url;
+      container.classList.remove("pointer-events-none", "hidden");
+      document.getElementById("back-button").classList.remove("hidden");
+      requestAnimationFrame(() => {
+        container.classList.replace("bg-opacity-0", "bg-opacity-90");
+        gameFrame.classList.remove("opacity-0");
+      });
+    }
+
+    function closeGame() {
+      const container = document.getElementById('game-container');
+      const gameFrame = document.getElementById('game-frame');
+      container.classList.replace("bg-opacity-90", "bg-opacity-0");
+      container.classList.add("pointer-events-none");
+      gameFrame.classList.add("opacity-0");
+      document.getElementById("back-button").classList.add("hidden");
+      setTimeout(() => {
+        container.classList.add("hidden");
+        gameFrame.src = "";
+      }, 3000);
+    }
+
+    document.getElementById("searchBar").addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      const scored = games
+        .map(g => ({
+          ...g,
+          score: g.name.toLowerCase().includes(query) ? g.name.toLowerCase().indexOf(query) : Infinity
+        }))
+        .filter(g => g.score !== Infinity)
+        .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+
+      if (query === '') {
+        renderGames([...games].sort((a, b) => a.name.localeCompare(b.name)));
+      } else {
+        renderGames(scored);
+      }
+    });
+
+    renderGames([...games].sort((a, b) => a.name.localeCompare(b.name)));
+    renderFeaturedGames();
+      const canvas = document.getElementById("particleCanvas");
+  const ctx = canvas.getContext("2d");
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  class Particle {
+    constructor() {
+      this.radius = Math.random() * 6 + 4;
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height + this.radius;
+      this.speedY = Math.random() * 4 + 2;
+      this.opacity = Math.random() * 0.5 + 0.5;
+    }
+
+    update() {
+      this.y -= this.speedY;
+      if (this.y < -this.radius) {
+        this.y = canvas.height + this.radius;
+        this.x = Math.random() * canvas.width;
+      }
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = "rgba(82, 23, 124, 1)";
+      ctx.fillStyle = `rgba(82, 23, 124, ${this.opacity})`;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  let particles = [];
+  function initParticles() {
+    particles = [];
+    for (let i = 0; i < 100; i++) {
+      particles.push(new Particle());
+    }
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+
+  resizeCanvas();
+  initParticles();
+  animateParticles();
+  window.addEventListener("resize", resizeCanvas);
+
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key.toLowerCase() === "u")
+      ) {
+        e.preventDefault();
+      }
+    });
+
+const div = document.createElement("div");
+div.className = "LOL …";
+div.setAttribute("data-name", game.name);
+container.appendChild(div);
+  </script>
+</body>
+</html>
