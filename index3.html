@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Afterlife Social</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(270deg, #2b0033, #1a001f, #4b006e);
+      background-size: 600% 600%;
+      animation: backgroundShift 15s ease infinite;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #d3aaff;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+    }
+
+    h2 {
+      font-size: 2em;
+    }
+
+    @keyframes dots {
+      0%   { content: "."; }
+      33%  { content: ".."; }
+      66%  { content: "..."; }
+      100% { content: "."; }
+    }
+
+    .dots::after {
+      content: ".";
+      animation: dots 1.2s steps(3, end) infinite;
+    }
+
+    @keyframes backgroundShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Afterlife Social</h1>
+  <h2>Coming soon<span class="dots"></span></h2>
+</body>
+</html>
